@@ -1,0 +1,16 @@
+@import './fonts';
+@import './overrides';
+@import './classes';
+
+.v-application {
+  margin: auto !important;
+  padding: 0 !important;
+}
+
+.rtl {
+  direction: rtl;
+}
+
+.ltr {
+  direction: ltr;
+}
