@@ -10,6 +10,7 @@ import globalMixin from '@/mixins/global'
 import Filters from '@/filters'
 import Bowser from 'bowser'
 import browserVersionCompatibility from '@/plugins/browser-compatibility'
+import Axios from '@/plugins/axios'
 
 const browser = Bowser && Bowser.getParser(window.navigator.userAgent)
 
@@ -28,6 +29,10 @@ Vue.mixin({
 })
 
 const vuetify = Vuetify(APP_CONFIG)
+
+const AxiosObject = Axios()
+window.axios = AxiosObject
+Vue.prototype.$axios = AxiosObject.axios
 
 router.beforeEach((to, from, next) => {
   next()
