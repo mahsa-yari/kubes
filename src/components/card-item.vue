@@ -41,7 +41,7 @@
 
           <v-list-item-content>
             <v-list-item-title class="text-small title--color">{{post.user.firstName}} {{post.user.lastName}}</v-list-item-title>
-            <v-list-item-title class="text-small subtitle--color">{{post.publishDate}}</v-list-item-title>
+            <v-list-item-title class="text-small subtitle--color">{{post.publishDate | date}}</v-list-item-title>
           </v-list-item-content>
 
           <v-row
