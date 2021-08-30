@@ -1,40 +1,67 @@
 <template>
-  <div class="form-item-component" :class="{ md }">
-    <div class="form-label">
-      <v-icon> {{ icon }} </v-icon>
-      <label> {{ label }} </label>
+  <div class="form-item-component">
+    <div>
+      <label class="text-caption"> {{ label }} </label>
     </div>
-    <slot v-if="hasSlot"></slot>
-    <template v-else>
+    <template>
       <v-text-field
         v-if="type === 'textbox'"
-        :dir="ltr ? 'ltr' : 'rtl'"
-        outlined
+        solo
         :value="value"
         v-bind="$attrs"
         @input="onChange"
-        @blur="onBlur"
-        :class="isLoading ? 'textbox-loading' : ''"
-        :append-icon="textboxAppendIcon !== '' ? textboxAppendIcon : 'mdi-information' "
       >
-        <v-btn
-          v-if="isLoading"
-          slot="append"
-          text
-          color="green"
-          :loading="true"
-        >
-        </v-btn>
       </v-text-field>
-      <form-item-chips
-        v-else-if="type === 'chips'"
+
+      <v-textarea
+        v-else-if="type === 'textarea'"
+        no-resize
+        solo
         :value="value"
-        :dir="ltr ? 'ltr' : 'rtl'"
         v-bind="$attrs"
         @input="onChange"
-        @updateSearchInput="updateSearchInput"
-      >
-      </form-item-chips>
+      ></v-textarea>
+
+      <div v-if="type === 'chips'">
+        <v-text-field
+          v-model="chips"
+          solo
+          v-bind="$attrs"
+          hide-details
+        >
+          <v-btn
+            slot="append"
+            text
+            :color="chips ? '#4F73D0' : '#E7E7E7'"
+            class="font-weight-bold text-capitalize px-0"
+            @click="onClick"
+          >
+            {{ btnTitle }}
+
+            <v-icon v-if="icon"
+                    right
+                    size="16">
+              {{ icon }}
+            </v-icon>
+          </v-btn>
+        </v-text-field>
+        <v-chip
+          v-for="(item, index) in chipsArray"
+          v-bind:key="index"
+          class="mr-2 mb-2"
+          color="#9D9D9D"
+          outlined
+        >
+          <v-icon left
+                  size="18"
+                  class="has-hand-cursor"
+                  @click="onRemove(item)">
+            mdi-close
+          </v-icon>
+
+          {{ item }}
+        </v-chip>
+      </div>
     </template>
   </div>
 </template>
@@ -47,17 +74,11 @@
  * @property {string} [icon] - form label icon name.
  * @property {string} [label] - form label text.
  * @property {string} [type] - form input type (when slot not exists).
- * @property {Boolean} [ltr=false] - form input ltr direction. (default is rtl).
- * @property {Boolean} [md=false] - form input md size.
  * @property {*} [v-model] - default input value (when slot not exists).
  */
-import formItemChips from '../components/form-item-chips'
 
 export default {
   name: 'FormItem',
-  components: {
-    formItemChips
-  },
   props: {
     index: {
       type: [String, Number],
@@ -72,11 +93,12 @@ export default {
       required: false
     },
     type: {
-      type: String,
+      type: [String, Array],
       required: false,
       validator: v =>
         [
           'textbox',
+          'textarea',
           'chips'
         ].indexOf(v) !== -1
     },
@@ -84,20 +106,10 @@ export default {
       type: [String, Boolean, Array, Number, File],
       required: false
     },
-    ltr: {
-      type: Boolean,
+    btnTitle: {
+      type: String,
       required: false,
-      default: false
-    },
-    md: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    isLoading: {
-      type: Boolean,
-      required: false,
-      default: false
+      default: ''
     }
   },
   model: {
@@ -106,87 +118,72 @@ export default {
   },
   data () {
     return {
+      chips: '',
+      chipsArray: []
     }
   },
   computed: {
-    hasSlot () {
-      return !!this.$slots.default
-    }
   },
   methods: {
     onChange (e) {
       this.$emit('input', e)
     },
-    onBlur (e) {
-      this.$emit('blur', e)
+    onClick () {
+      if (!this.chipsArray.includes(this.chips)) {
+        this.chipsArray.push(this.chips)
+      }
+      this.chips = ''
+      this.$emit('onSubmit', this.chipsArray)
     },
-    onClick (e) {
-      this.$emit('click', e)
-    },
-    onMousedown (e) {
-      this.$emit('mousedown', e)
-    },
-    updateSearchInput (e) {
-      this.$emit('updateSearchInput', e)
+    onRemove (e) {
+      this.chipsArray = this.chipsArray.filter(item => { if (item !== e) return item })
+      this.$emit('onSubmit', this.chipsArray)
     }
   }
 }
 </script>
 
-<style scoped lang="scss">
-.form-item-component > * + * {
-  margin-top: 6px;
-}
-.form-item-component > div + span {
-  margin-top: 0px;
-}
-.form-label {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  min-width: 100px;
-  max-width: 200px;
-  i + label {
-    color: #212121;
-    margin: 0 15px 0 10px;
-    font-size: 12px;
-    color: #212121;
-  }
-  @media (max-width: 780px) {
-    margin-bottom: 0.2em;
-    max-width: 100%;
-  }
-}
-::v-deep {
-  .custome-select {
-    position: absolute;
-    left: 0;
-    bottom: -1.9rem;
-    width: 30%;
-    border-radius: inherit 0 0 inherit;
-  }
-  .textbox-loading {
-    &.v-text-field .v-input__append-inner {
-      margin-top: 6px !important;
+<style lang="scss">
+
+  .form-item-component {
+    .v-input__slot {
+      min-height: 2.5rem !important;
+      border: .1rem solid $border-normal-color !important;
+      border-radius: 0.4rem;
+      font-size: .875rem !important;
     }
-  }
-  .v-input__icon--append {
-    .mdi-check-circle {
-      &.v-icon {
-        margin-bottom: 8px !important;
-        color: green !important;
+
+    .v-input--is-focused {
+      .v-input__slot {
+        border: .1rem solid $border-active-color !important;
+      }
+    }
+
+    .v-input--is-label-active {
+      color: black !important;
+    }
+
+    .v-label {
+      font-size: .875rem !important;
+      color: $text-normal-color !important;
+    }
+
+    .v-input__icon {
+      color: $text-normal-color !important;
+    }
+
+    .v-input__slot {
+      box-shadow: none !important;
+    }
+
+    .v-chip {
+      &:hover {
+        color: $text-active-color !important;
+      }
+      &:not(.v-chip--active) {
+        background: white !important;
       }
     }
   }
-  .v-input__icon--clear {
-    position: absolute;
-    .mdi-close-circle {
-      &.v-icon {
-        margin-top: 0 !important;
-        margin-bottom: 9px !important;
-        color: red !important;
-      }
-    }
-  }
-}
+
 </style>
