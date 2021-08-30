@@ -1,17 +1,9 @@
 <template>
-  <v-app
-    id="inspire">
-    <v-main
-      class="mainContent"
-      >
-      <v-container
-        fluid
-        >
-        <v-row >
-          <v-col class="pt-0">
-            <router-view />
-          </v-col>
-        </v-row>
+  <v-app id="inspire">
+    <v-main class="mainContent">
+      <v-container fluid
+                   class="pa-md-16">
+        <router-view />
       </v-container>
     </v-main>
     <GlobalSnackbar />
