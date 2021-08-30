@@ -9,11 +9,11 @@ export default {
     fa,
     en
   },
-  rtl: true,
+  rtl: false,
   darkTheme: false,
   themes: {
     light: {
-      mainContent: '#FAFAFA',
+      mainContent: '#ffffff',
       formInputColor: '#F3F7F9',
       borderColor: '#E1E7EE',
     },
