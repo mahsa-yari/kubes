@@ -47,6 +47,18 @@ export default {
           console.log(e)
         })
       return promise
+    },
+
+    getMenuList (context) {
+      const promise = axios.request({
+        method: 'get',
+        url: 'b/60a56bcc4e1de86b45d201ae'
+      })
+      promise
+        .then(res => {
+          return res.data
+        })
+      return promise
     }
   }
 }
